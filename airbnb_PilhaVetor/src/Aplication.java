@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Aplication {
-	final static String caminho = "/tmp/dados_airbnb.txt";
+	final static String caminho = "./tmp/dados_airbnb.txt";
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
@@ -47,27 +47,7 @@ public class Aplication {
 		
 		input.close();
 		
-		Integer k = 0;
-		
-		Pilha revPilha = new Pilha();
-		 do {
-			try {
-				revPilha.empilhar(pilha.desempilhar());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} while(!pilha.pilhaVazia());
-		 
-		 while(!revPilha.pilhaVazia()) {
-				 try {
-					 System.out.print("["+k+"]");
-					 revPilha.desempilhar().imprimir();
-					 k++;
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-		 }
+		pilha.mostrar(pilha);
 		
 	}
 }
@@ -76,7 +56,7 @@ class Pilha {
 
 	private Acomodacao pilha[];
 	private int topo;
-	static final int max = 5510;
+	static final int max = 5501;
 	
 	public Pilha() {
 		pilha = new Acomodacao[max];
@@ -102,13 +82,30 @@ class Pilha {
 		}
 	}
 
-	public Acomodacao consultarTopo() throws Exception {
-		if (!pilhaVazia()) {
-			return(pilha[topo]);
-		} else {
-			throw new Exception("Não foi possível consultar o topo da pilha: a pilha está vazia!");
-		}
-	}
+	public void mostrar(Pilha pilha) throws Exception {
+		
+		Integer k = 0;
+		Pilha revPilha = new Pilha();
+		
+			do {
+				try {
+					revPilha.empilhar(pilha.desempilhar());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} while(!pilha.pilhaVazia());
+				 
+			while(!revPilha.pilhaVazia()) {
+				try {
+					System.out.print("["+k+"]");
+					revPilha.desempilhar().imprimir();
+					k++;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+						
+			}
+	};
 
 	public boolean pilhaCheia() {
 		boolean resp;
