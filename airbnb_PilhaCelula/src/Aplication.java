@@ -52,7 +52,6 @@ public class Aplication {
 					 System.out.print("["+i+"]");revPilha.desempilhar().imprimir();
 					 i++;
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
