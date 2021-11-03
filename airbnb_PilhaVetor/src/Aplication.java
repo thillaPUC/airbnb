@@ -1,12 +1,133 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Aplication {
 	final static String caminho = "/tmp/dados_airbnb.txt";
 	
-	public static void main(String[] args) {
+	@SuppressWarnings("unused")
+	public static void main(String[] args) throws Exception {
+		String pesquisa;
+		Integer idRetorno;
+		String qtdComandos;
+		
+		@SuppressWarnings("resource")
+		Scanner input = new Scanner(System.in);
 		Acomodacao[] acomodacao = Acomodacao.atribuirAcomodacao(caminho);
-		Acomodacao.pesquisarPorId(acomodacao);
+		
+		Pilha pilha = new Pilha();
+		pesquisa = input.nextLine();
+		
+		do {
+			pilha.empilhar(Acomodacao.pesquisarPorId(acomodacao,pesquisa));
+			pesquisa = input.nextLine();
+		} while(!pesquisa.equals("FIM"));
+		
+		qtdComandos = input.nextLine();
+		
+		Integer i = 0;
+		
+		for (i = 0; i < Integer.parseInt(qtdComandos); i++) {
+			pesquisa = input.nextLine();
+			String[] parte = pesquisa.split(" ");
+			if(parte[0].equals("E")) {
+				pilha.empilhar(Acomodacao.pesquisarPorId(acomodacao, parte[1]));
+			} else {
+				try {
+					System.out.println("(D) " + pilha.desempilhar().getRoomId());
+					pilha.desempilhar();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		input.close();
+		
+		Integer k = 0;
+		
+		Pilha revPilha = new Pilha();
+		 do {
+			try {
+				revPilha.empilhar(pilha.desempilhar());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} while(!pilha.pilhaVazia());
+		 
+		 while(!revPilha.pilhaVazia()) {
+				 try {
+					 System.out.print("["+k+"]");
+					 revPilha.desempilhar().imprimir();
+					 k++;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+		 }
+		
+	}
+}
+
+class Pilha {
+
+	private Acomodacao pilha[];
+	private int topo;
+	static final int max = 5510;
+	
+	public Pilha() {
+		pilha = new Acomodacao[max];
+		topo = 0;
+	}
+
+	public void empilhar(Acomodacao novo) throws Exception {
+		if (!pilhaCheia()) {
+			pilha[topo] = novo;
+			topo++;
+		} else
+			throw new Exception("Não foi possível empilhar: a pilha está cheia!");
+	}
+	
+	public Acomodacao desempilhar() throws Exception {
+		Acomodacao desempilhado;
+		if (!pilhaVazia()) {
+			topo--;
+			desempilhado = pilha[topo];
+			return desempilhado;
+		} else {
+			throw new Exception("Não foi possível desempilhar: a pilha está vazia!");
+		}
+	}
+
+	public Acomodacao consultarTopo() throws Exception {
+		if (!pilhaVazia()) {
+			return(pilha[topo]);
+		} else {
+			throw new Exception("Não foi possível consultar o topo da pilha: a pilha está vazia!");
+		}
+	}
+
+	public boolean pilhaCheia() {
+		boolean resp;
+		if (topo == pilha.length){
+			resp = true;
+		} else {
+			resp = false;
+		}
+		return resp;
+	}
+	
+	public boolean pilhaVazia() {
+		boolean resp;
+		if (topo == 0) {
+			resp = true;
+		} else {
+			resp = false;
+		}
+		return resp;
 	}
 }
 
@@ -45,6 +166,15 @@ class LeituraArquivo{
 		}finally{
 			return entrada;
 		}
+		
+	}
+	public int contarObjetos() {
+		int qtd = 0;
+		
+		while(lerLinha() != null) {
+			qtd++;
+		};
+		return qtd-1;
 	}
 }
 
@@ -194,20 +324,14 @@ class Acomodacao {
 	
 	public static Acomodacao[] atribuirAcomodacao(String caminho) {
 		
+		int cont;
+		
 		LeituraArquivo arquivoEntrada = new LeituraArquivo(caminho);
-		int j = 0;
-		int cont = -1;
 		
-		while(arquivoEntrada.lerLinha() != null) {
-			cont++;
-		};
-		
+		cont = arquivoEntrada.contarObjetos();
 		arquivoEntrada.fecharArquivo();
-		
 		arquivoEntrada = new LeituraArquivo(caminho);
-		
-		//descartando a primeira linha do arquivo
-		String linhaLida = arquivoEntrada.lerLinha();
+		String linhaLida = arquivoEntrada.lerLinha(); // descarte 1� linha
 		
 		Acomodacao[] acomodacao = new Acomodacao[cont];
 			for(int i = 0; i < cont; i++) {
@@ -216,29 +340,17 @@ class Acomodacao {
 				acomodacao[i] = new Acomodacao(Integer.parseInt(parte[0]),Integer.parseInt(parte[1]),parte[2],parte[3],parte[4],parte[5],
 						Integer.parseInt(parte[6]),Double.parseDouble(parte[7]),Integer.parseInt(parte[8]),
 						Double.parseDouble(parte[9]),Double.parseDouble(parte[10]),parte[11]);
-			}
-			
+			}		
 			return acomodacao;
 	}
-	
-	public static void pesquisarPorId(Acomodacao[] acomodacao) {
-		Scanner input = new Scanner(System.in);
-		int j = 0;
-		
-		String pesquisa = input.nextLine();
-		do {
-			try{
-				if(Integer.parseInt(pesquisa) != acomodacao[j].getRoomId()){
-					j++;
-				} else{
-					acomodacao[j].imprimir();
-					j = 0;
-					pesquisa = input.nextLine();
-				}
-			} catch(Exception excecao){
-				pesquisa = "FIM";
-			}
-		} while(!pesquisa.equals("FIM"));
-		input.close();
+
+	public static Acomodacao pesquisarPorId(Acomodacao[] acomodacao, String pesquisa) {
+		for(int i = 0; i <= acomodacao.length-1; i++) {
+			if(Integer.parseInt(pesquisa) == acomodacao[i].getRoomId()){
+				return acomodacao[i];
+			} 
+		}
+		return null;
 	}
+	
 }
