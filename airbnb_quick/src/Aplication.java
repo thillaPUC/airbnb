@@ -1,13 +1,80 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Aplication {
 	final static String caminho = "/tmp/dados_airbnb.txt";
 	
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
+		Integer qtdComandos;
+		Integer idRetorno;
+		String pesquisa;
+		Scanner input = new Scanner(System.in);
 		Acomodacao[] acomodacao = Acomodacao.atribuirAcomodacao(caminho);
-		Acomodacao.pesquisarPorId(acomodacao);
+		qtdComandos = Integer.parseInt(input.nextLine());
+		Acomodacao[] acomodacaoOrdenada = new Acomodacao[qtdComandos];
+		for(int i = 0; i < qtdComandos; i++) {
+			pesquisa = input.nextLine();
+			acomodacaoOrdenada[i] = Acomodacao.pesquisarPorId(acomodacao, pesquisa);
+		}
+		sort(acomodacaoOrdenada, qtdComandos);
+		input.close();
+		for (int i = 0; i < qtdComandos; i++) {
+			acomodacaoOrdenada[i].imprimir();
+		}
 	}
+	
+	public static void sort(Acomodacao[] acomodacaoOrdenada, int n) {
+		quicksort(acomodacaoOrdenada,0, n - 1);
+	}
+		
+	private static void quicksort(Acomodacao[] acomodacaoOrdenada, int esq, int dir) {
+				
+		int part;
+		if (esq < dir){
+			part = particao(acomodacaoOrdenada, esq, dir);
+			quicksort(acomodacaoOrdenada, esq, part - 1);
+			quicksort(acomodacaoOrdenada, part + 1, dir);
+		}
+	}
+					
+	private static int particao(Acomodacao[] acomodacaoOrdenada, int inicio, int fim) {
+			
+		Acomodacao pivot = acomodacaoOrdenada[fim];
+		int part = inicio - 1;
+		for (int i = inicio; i < fim; i++) {
+			if (acomodacaoOrdenada[i].getPrice() < pivot.getPrice()) {
+				part++;
+				swap(acomodacaoOrdenada, part, i);
+			}else if (acomodacaoOrdenada[i].getPrice() == pivot.getPrice()) {
+				if(acomodacaoOrdenada[i].getRoomType().charAt(0) < pivot.getRoomType().charAt(0)) {
+					part++;
+					swap(acomodacaoOrdenada, part, i);
+				}else if(acomodacaoOrdenada[i].getRoomType().charAt(0) == pivot.getRoomType().charAt(0)){
+					if(acomodacaoOrdenada[i].getRoomId() < pivot.getRoomId()) {
+						part++;
+						swap(acomodacaoOrdenada, part, i);
+					}
+				}
+			}
+		}
+		part++;
+		swap(acomodacaoOrdenada, part, fim);
+		return (part);
+	}
+		
+	private static void swap(Acomodacao[] acomodacaoOrdenada, int i, int j) {
+		      
+		Acomodacao temp = acomodacaoOrdenada[i];
+		acomodacaoOrdenada[i] = acomodacaoOrdenada[j];
+		acomodacaoOrdenada[j] = temp;
+	}
+
+	
 }
 
 class LeituraArquivo{
@@ -45,6 +112,15 @@ class LeituraArquivo{
 		}finally{
 			return entrada;
 		}
+		
+	}
+	public int contarObjetos() {
+		int qtd = 0;
+		
+		while(lerLinha() != null) {
+			qtd++;
+		};
+		return qtd-1;
 	}
 }
 
@@ -194,19 +270,13 @@ class Acomodacao {
 	
 	public static Acomodacao[] atribuirAcomodacao(String caminho) {
 		
+		int cont;
+		
 		LeituraArquivo arquivoEntrada = new LeituraArquivo(caminho);
-		int j = 0;
-		int cont = -1;
 		
-		while(arquivoEntrada.lerLinha() != null) {
-			cont++;
-		};
-		
+		cont = arquivoEntrada.contarObjetos();
 		arquivoEntrada.fecharArquivo();
-		
 		arquivoEntrada = new LeituraArquivo(caminho);
-		
-		//descartando a primeira linha do arquivo
 		String linhaLida = arquivoEntrada.lerLinha();
 		
 		Acomodacao[] acomodacao = new Acomodacao[cont];
@@ -216,29 +286,17 @@ class Acomodacao {
 				acomodacao[i] = new Acomodacao(Integer.parseInt(parte[0]),Integer.parseInt(parte[1]),parte[2],parte[3],parte[4],parte[5],
 						Integer.parseInt(parte[6]),Double.parseDouble(parte[7]),Integer.parseInt(parte[8]),
 						Double.parseDouble(parte[9]),Double.parseDouble(parte[10]),parte[11]);
-			}
-			
+			}		
 			return acomodacao;
 	}
-	
-	public static void pesquisarPorId(Acomodacao[] acomodacao) {
-		Scanner input = new Scanner(System.in);
-		int j = 0;
-		
-		String pesquisa = input.nextLine();
-		do {
-			try{
-				if(Integer.parseInt(pesquisa) != acomodacao[j].getRoomId()){
-					j++;
-				} else{
-					acomodacao[j].imprimir();
-					j = 0;
-					pesquisa = input.nextLine();
-				}
-			} catch(Exception excecao){
-				pesquisa = "FIM";
-			}
-		} while(!pesquisa.equals("FIM"));
-		input.close();
+
+	public static Acomodacao pesquisarPorId(Acomodacao[] acomodacao, String pesquisa) {
+		for(int i = 0; i <=acomodacao.length-1;i++) {
+			if(Integer.parseInt(pesquisa) == acomodacao[i].getRoomId()){
+				return acomodacao[i];
+			} 
+		}
+		return null;
 	}
+	
 }
