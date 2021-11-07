@@ -47,29 +47,28 @@ public class Aplication {
         	int menor = i;
         	
          	for (int j = (menor + 1); j < acomodacaoOrdenada.length; j++) {
-            	if (acomodacaoOrdenada[menor].getCountry().charAt(0) > acomodacaoOrdenada[j].getCountry().charAt(0)){
+				if(acomodacaoOrdenada[j].getCountry().compareTo(acomodacaoOrdenada[menor].getCountry()) < 0 ) {
 					comparacoes++;
                		menor = j;
-            	} else if(acomodacaoOrdenada[menor].getCountry().charAt(0) == acomodacaoOrdenada[j].getCountry().charAt(0)){
+            	} else if(acomodacaoOrdenada[j].getCountry().compareTo(acomodacaoOrdenada[menor].getCountry()) == 0){
 					comparacoes++;
-						if(acomodacaoOrdenada[menor].getCity().charAt(0) > acomodacaoOrdenada[j].getCity().charAt(0)){
+						if(acomodacaoOrdenada[j].getCity().compareTo(acomodacaoOrdenada[menor].getCity()) < 0){
 							comparacoes++;
 							menor = j;
-						} else if(acomodacaoOrdenada[menor].getCity().charAt(0) == acomodacaoOrdenada[j].getCity().charAt(0)){
+						} else if(acomodacaoOrdenada[j].getCity().compareTo(acomodacaoOrdenada[menor].getCity()) == 0){
 							comparacoes++;
-							if(acomodacaoOrdenada[menor].getNeighbourhood().charAt(0) > acomodacaoOrdenada[j].getNeighbourhood().charAt(0)){
+							if(acomodacaoOrdenada[j].getNeighbourhood().compareTo(acomodacaoOrdenada[menor].getNeighbourhood()) < 0){
 								comparacoes++;
 								menor = j;
-							} else if(acomodacaoOrdenada[menor].getNeighbourhood().charAt(0) == acomodacaoOrdenada[j].getNeighbourhood().charAt(0)){
+							} else if(acomodacaoOrdenada[j].getNeighbourhood().compareTo(acomodacaoOrdenada[menor].getNeighbourhood()) == 0){
 								comparacoes++;
 								if(acomodacaoOrdenada[menor].getRoomId() > acomodacaoOrdenada[j].getRoomId()){
 									comparacoes++;
 									menor = j;
 								}
 							}
-						}
+						}  
 				}
-         	}
          	
          	if (acomodacaoOrdenada[menor] != acomodacaoOrdenada[i]) {
          		Acomodacao temp = acomodacaoOrdenada[i];
@@ -79,7 +78,7 @@ public class Aplication {
          		trocas++;
          	}
          	
-      	}
+        }
 		
 		Long tempoFinal = System.currentTimeMillis();
 		
@@ -88,9 +87,9 @@ public class Aplication {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-		
-	
+	}	
+}
+
 }
 
 class LeituraArquivo{
