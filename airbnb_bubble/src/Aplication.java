@@ -1,7 +1,9 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -28,21 +30,42 @@ public class Aplication {
 		}
 	}
 	
+	public static void createLog(Long tempoIni, Long tempoFin) throws IOException {
+		FileWriter arq = new FileWriter("matricula_bubblesort.txt");
+		BufferedWriter gravar = new BufferedWriter(arq);
+		gravar.write("732434\t" + (tempoFin - tempoIni) + "\t" + comparacoes + "\t" + trocas);
+		gravar.close();
+		arq.close();
+	}
+	static int comparacoes = 0;
+	static int trocas = 0;
 	static void bubbleSort(Acomodacao[] acomodacaoOrdenada, int n) {
+		Long tempoIni = System.currentTimeMillis();
 		for(int i = (n-1); i > 0; i--) {
 			for(int j = 0; j < i; j++) {
 				if(acomodacaoOrdenada[j].getOverallSatisfaction() > acomodacaoOrdenada[j+1].getOverallSatisfaction()) {
+					comparacoes++;
 					Acomodacao temp = acomodacaoOrdenada[j];
 					 acomodacaoOrdenada[j] =  acomodacaoOrdenada[j+1];
 					 acomodacaoOrdenada[j+1] = temp;
+					 trocas++;
 				}else if (acomodacaoOrdenada[j].getOverallSatisfaction() == acomodacaoOrdenada[j+1].getOverallSatisfaction()) {
+					comparacoes++;
 					if(acomodacaoOrdenada[j].getRoomId() > acomodacaoOrdenada[j+1].getRoomId()) {
+						comparacoes++;
 						Acomodacao temp = acomodacaoOrdenada[j];
 						 acomodacaoOrdenada[j] =  acomodacaoOrdenada[j+1];
 						 acomodacaoOrdenada[j+1] = temp;
+						 trocas++;
 					}
 				}
 			}
+		}
+		Long tempoFin = System.currentTimeMillis();
+		try {
+			createLog(tempoIni, tempoFin);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

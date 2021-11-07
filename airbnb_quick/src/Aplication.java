@@ -1,7 +1,11 @@
+package quick;
+
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -27,13 +31,28 @@ public class Aplication {
 			acomodacaoOrdenada[i].imprimir();
 		}
 	}
+	public static void createLog(Long tempoIni, Long tempoFin) throws IOException {
+		FileWriter arq = new FileWriter("matricula_quicksort.txt");
+		BufferedWriter gravar = new BufferedWriter(arq);
+		gravar.write("732434\t" + (tempoFin - tempoIni) + "\t" + comparacoes + "\t" + trocas);
+		gravar.close();
+		arq.close();
+	}
 	
 	public static void sort(Acomodacao[] acomodacaoOrdenada, int n) {
+		Long tempoIni = System.currentTimeMillis();
 		quicksort(acomodacaoOrdenada,0, n - 1);
+		Long tempoFin = System.currentTimeMillis();
+		try {
+			createLog(tempoIni, tempoFin);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-		
+static int trocas = 0;	
 	private static void quicksort(Acomodacao[] acomodacaoOrdenada, int esq, int dir) {
-				
+		trocas++;
 		int part;
 		if (esq < dir){
 			part = particao(acomodacaoOrdenada, esq, dir);
@@ -41,21 +60,25 @@ public class Aplication {
 			quicksort(acomodacaoOrdenada, part + 1, dir);
 		}
 	}
-					
+static int comparacoes = 0;			
 	private static int particao(Acomodacao[] acomodacaoOrdenada, int inicio, int fim) {
-			
 		Acomodacao pivot = acomodacaoOrdenada[fim];
 		int part = inicio - 1;
 		for (int i = inicio; i < fim; i++) {
 			if (acomodacaoOrdenada[i].getPrice() < pivot.getPrice()) {
+				comparacoes++;
 				part++;
 				swap(acomodacaoOrdenada, part, i);
 			}else if (acomodacaoOrdenada[i].getPrice() == pivot.getPrice()) {
+				comparacoes++;
 				if(acomodacaoOrdenada[i].getRoomType().charAt(0) < pivot.getRoomType().charAt(0)) {
+					comparacoes++;
 					part++;
 					swap(acomodacaoOrdenada, part, i);
 				}else if(acomodacaoOrdenada[i].getRoomType().charAt(0) == pivot.getRoomType().charAt(0)){
+					comparacoes++;
 					if(acomodacaoOrdenada[i].getRoomId() < pivot.getRoomId()) {
+						comparacoes++;
 						part++;
 						swap(acomodacaoOrdenada, part, i);
 					}
@@ -64,11 +87,11 @@ public class Aplication {
 		}
 		part++;
 		swap(acomodacaoOrdenada, part, fim);
-		return (part);
+		return part;
 	}
 		
 	private static void swap(Acomodacao[] acomodacaoOrdenada, int i, int j) {
-		      
+		
 		Acomodacao temp = acomodacaoOrdenada[i];
 		acomodacaoOrdenada[i] = acomodacaoOrdenada[j];
 		acomodacaoOrdenada[j] = temp;
