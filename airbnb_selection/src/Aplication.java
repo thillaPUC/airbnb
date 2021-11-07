@@ -62,7 +62,7 @@ public class Aplication {
 								menor = j;
 							} else if(acomodacaoOrdenada[j].getNeighbourhood().compareTo(acomodacaoOrdenada[menor].getNeighbourhood()) == 0){
 								comparacoes++;
-								if(acomodacaoOrdenada[menor].getRoomId() > acomodacaoOrdenada[j].getRoomId()){
+								if(acomodacaoOrdenada[j].getRoomId() < acomodacaoOrdenada[menor].getRoomId()){
 									comparacoes++;
 									menor = j;
 								}
@@ -70,14 +70,11 @@ public class Aplication {
 						}  
 				}
          	
-         	if (acomodacaoOrdenada[menor] != acomodacaoOrdenada[i]) {
-         		Acomodacao temp = acomodacaoOrdenada[i];
-         		acomodacaoOrdenada[i] = acomodacaoOrdenada[menor];
-         		trocas++;
-         		acomodacaoOrdenada[menor] = temp;
-         		trocas++;
-         	}
-         	
+         	Acomodacao temp = acomodacaoOrdenada[i];
+         	acomodacaoOrdenada[i] = acomodacaoOrdenada[menor];
+         	trocas++;
+         	acomodacaoOrdenada[menor] = temp;
+         	trocas++;
         }
 		
 		Long tempoFinal = System.currentTimeMillis();
