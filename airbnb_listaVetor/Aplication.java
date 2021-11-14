@@ -8,87 +8,223 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Aplication {
-	final static String caminho = "/tmp/dados_airbnb.txt";
+	final static String caminho = "./tmp/dados_airbnb.txt";
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		Integer qtdComandos;
-		Integer idRetorno;
-		String pesquisa;
-		Scanner input = new Scanner(System.in);
+		ListaLinear lista = new ListaLinear(5700);
 		Acomodacao[] acomodacao = Acomodacao.atribuirAcomodacao(caminho);
-		qtdComandos = Integer.parseInt(input.nextLine());
-		Acomodacao[] acomodacaoOrdenada = new Acomodacao[qtdComandos];
-		for(int i = 0; i < qtdComandos; i++) {
+		Scanner input = new Scanner(System.in);
+		String pesquisa;
+		Integer qtdComandos;
+		pesquisa = input.nextLine();
+		while(!pesquisa.equalsIgnoreCase("FIM")) {
+			lista.inserirFinal(Acomodacao.pesquisarPorId(acomodacao, pesquisa));
 			pesquisa = input.nextLine();
-			acomodacaoOrdenada[i] = Acomodacao.pesquisarPorId(acomodacao, pesquisa);
 		}
-		selectionSort(acomodacaoOrdenada);
-		input.close();
+		qtdComandos = Integer.parseInt(input.nextLine());
 		for (int i = 0; i < qtdComandos; i++) {
-			acomodacaoOrdenada[i].imprimir();
+			String comando[] = input.nextLine().split(" ");
+			
+			if(comando[0].charAt(0) == 'R') {
+				if(comando[0].contains("*")) {
+					try {
+						System.out.println("(R)" + lista.remover(Integer.parseInt(comando[1])).getRoomId());
+					} catch (NumberFormatException e) {
+
+						e.printStackTrace();
+					} catch (Exception e) {
+
+						e.printStackTrace();
+					}
+				}else if(comando[0].contains("I")) {
+					System.out.println("(R)" + lista.removerInicio().getRoomId());
+				}else if(comando[0].contains("F")) {
+					System.out.println("(R)" + lista.removerFinal().getRoomId());
+				}
+				
+			}else if(comando[0].charAt(0) == 'I') {
+				if(comando[0].contains("*")) {
+					try {
+						lista.inserir(Acomodacao.pesquisarPorId(acomodacao, comando[2]), Integer.parseInt(comando[1]));
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else if(comando[0].charAt(1) == 'I') {
+					lista.inserirInicio(Acomodacao.pesquisarPorId(acomodacao, comando[1]));
+				}else if(comando[0].contains("F")) {
+					lista.inserirFinal(Acomodacao.pesquisarPorId(acomodacao, comando[1]));
+				}
+				
+			}
+		}
+		try {
+			lista.imprimir();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
-	public static void createLog(Long tempoIni, Long tempoFin) throws IOException {
-		FileWriter arq = new FileWriter("matricula_selecao.txt");
-		BufferedWriter gravar = new BufferedWriter(arq);
-		gravar.write("732434\t" + (tempoFin - tempoIni) + "\t" + comparacoes + "\t" + trocas);
-		gravar.close();
-		arq.close();
+}
+class ListaLinear {
+
+	private Acomodacao lista[];
+	private int primeiro;
+	private int ultimo;
+	private int tamanho;
+	
+	public ListaLinear(int M) {
+		
+		lista = new Acomodacao[M];
+		tamanho = 0;
+		primeiro = 0;
+		ultimo = 0;
+	}
+	
+	public boolean listaVazia() {
+		
+		boolean resp;
+		
+		if (primeiro == ultimo)
+			resp = true;
+		else
+			resp = false;
+		
+		return resp;
+	}
+	
+	public boolean listaCheia() {
+		
+		boolean resp;
+		
+		if (ultimo == lista.length) 
+			resp = true;
+		else
+			resp = false;
+		
+		return resp;
+	}
+	
+	public void inserirInicio(Acomodacao novo) {
+		if (!listaCheia()) {
+			for(int i = ultimo; i >= primeiro; i--) {
+				lista[i+1] = lista[i];		
+			}
+			lista[primeiro] = novo;
+			ultimo++;
+			tamanho++;
+		}
 	}
 
-	static int comparacoes = 0;
-	static int trocas = 0;
-	static void selectionSort(Acomodacao[] acomodacaoOrdenada) {
-		Long tempoInicial = System.currentTimeMillis();
-		
-		for (int i = 0; i < (acomodacaoOrdenada.length - 1); i++) {
-        	int menor = i;
-        	
-         	for (int j = (menor + 1); j < acomodacaoOrdenada.length; j++) {
-				if(acomodacaoOrdenada[j].getCountry().compareTo(acomodacaoOrdenada[menor].getCountry()) < 0 ) {
-					comparacoes++;
-               		menor = j;
-            	} else if(acomodacaoOrdenada[j].getCountry().compareTo(acomodacaoOrdenada[menor].getCountry()) == 0){
-					comparacoes++;
-						if(acomodacaoOrdenada[j].getCity().compareTo(acomodacaoOrdenada[menor].getCity()) < 0){
-							comparacoes++;
-							menor = j;
-						} else if(acomodacaoOrdenada[j].getCity().compareTo(acomodacaoOrdenada[menor].getCity()) == 0){
-							comparacoes++;
-							if(acomodacaoOrdenada[j].getNeighbourhood().compareTo(acomodacaoOrdenada[menor].getNeighbourhood()) < 0){
-								comparacoes++;
-								menor = j;
-							} else if(acomodacaoOrdenada[j].getNeighbourhood().compareTo(acomodacaoOrdenada[menor].getNeighbourhood()) == 0){
-								comparacoes++;
-								if(acomodacaoOrdenada[j].getRoomId() < acomodacaoOrdenada[menor].getRoomId()){
-									comparacoes++;
-									menor = j;
-								}
-							}
-						}  
-				}
-         	
-         	Acomodacao temp = acomodacaoOrdenada[i];
-         	acomodacaoOrdenada[i] = acomodacaoOrdenada[menor];
-         	trocas++;
-         	acomodacaoOrdenada[menor] = temp;
-         	trocas++;
-        }
-		
-		Long tempoFinal = System.currentTimeMillis();
-		
-		try {
-			createLog(tempoInicial, tempoFinal);
-		} catch (IOException e) {
-			e.printStackTrace();
+	
+// O problema ta aqui nesse inserirFinal
+	
+	public void inserirFinal(Acomodacao novo) {
+		if (!listaCheia()) {
+			if(primeiro != tamanho) {
+				lista[ultimo+1] = novo;
+				ultimo++;
+				tamanho = ultimo;
+			}else {
+				lista[ultimo] = novo;
+			}
+
+
 		}
-	}	
+	}
+	
+	
+	public void inserir(Acomodacao novo, int posicao) throws Exception {
+		
+		if (! listaCheia()) {
+			if ((posicao >= 0) && (posicao <= tamanho)) {
+				for (int i = ultimo; i > posicao; i--)
+					lista[i] = lista[i-1];
+				
+				lista[posicao] = novo;
+				
+				ultimo++;
+				tamanho++;
+			} else
+				throw new Exception("posicao informada esta invalida!");
+		} else
+			throw new Exception("a lista esta cheia!");
+	}
+	public Acomodacao removerInicio() {
+		Acomodacao removida;
+		if(!listaVazia()) {
+			removida = lista[0];
+			for(int i = primeiro; i <= ultimo; i++) {
+				lista[i] = lista[i+1];
+			}
+			tamanho--;
+			ultimo--;
+			return removida;
+		}
+		
+		return null;
+	}
+	
+	
+	public Acomodacao removerFinal() {
+		Acomodacao removida;
+		if(!listaVazia()) {
+			ultimo--;
+			removida = lista[ultimo];
+			tamanho--;
+
+			return removida;
+		}
+		
+		return null;
+	}
+	
+	
+	
+	public Acomodacao remover(int posicao) throws Exception {
+		
+		Acomodacao removido;
+		
+		if (! listaVazia()) {
+			if ((posicao >= 0) && (posicao < tamanho)) {
+				
+				removido = lista[posicao];
+				tamanho--;
+				
+				for (int i = posicao; i < tamanho; i++) {
+					lista[i] = lista[i+1];
+				}
+				
+				ultimo--;
+				
+				return removido;
+			} else
+				throw new Exception("posicao informada esta invalida!");
+		} else
+			throw new Exception(" a lista esta vazia!");
+	}
+	
+	public void imprimir() throws Exception {
+		
+		if (! listaVazia()) {
+			
+			for (int i = primeiro; i < ultimo; i++) {
+				lista[i].imprimir();
+			}
+		} else
+			throw new Exception("a lista esta vazia!");
+	}
 }
 
-}
 
+
+
+// Fim da Classe Lista
 class LeituraArquivo{
 	private BufferedReader input;
 	
